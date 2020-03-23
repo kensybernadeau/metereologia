@@ -1,0 +1,16 @@
+#mapid { height: 600px; }
+
+.my-div-icon {
+    background-color: #fd8424;
+    border-radius: 3px;
+    border: 2px solid #ca6a1b;
+}
+
+.my-div-icon {
+        height: 0;
+        width: 0;
+
+        background-color: rgba(0,0,0,0);
+        border-radius: 40%;
+        border-style: none;
+      }
