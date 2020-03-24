@@ -5,7 +5,8 @@
     <title>Interactive Map</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css">
     <link rel="stylesheet" href="./style/style.css">
 </head>
@@ -18,40 +19,109 @@
     </nav>
     <div id="app" class="container-fluid" style="margin: 0;">
         <div class="container-fluid" style="padding:0;">
-            
-                <div class="row">
-                    <div class="col-md-10">
-                        <div id="map" class="map"></div>
-                    </div>
-                    <div class="col-md-2" style="background-color:rgba(201, 201, 201, 0.212);">
-                    <div class="form-check"  v-for="layer in layers" :key="layer.id">
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div id="map" class="map"></div>
+                </div>
+                <div class="col-md-2" style="background-color:rgba(201, 201, 201, 0.212);">
+                    <div class="form-check" v-for="layer in layers" :key="layer.id">
                         <hr>
-                        <label class="form-check-label" >
+                        <label class="form-check-label">
                             <input class="form-check-input" type="checkbox" v-model="layer.active"
                                 @change="layerChanged(layer.id, layer.active)" />
                             {{ layer.name }}
                         </label>
                         <hr>
                     </div>
+                    <hr>
+                    <div class="col12">
+                        <input type="text" id="calendar" name="datetimes" />
+                        <button @click=" updatePins(document.getElementById('calendar').value)">OK</button>
+                        <!-- <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                            <i class="fa fa-calendar"></i>&nbsp;
+                            <span v-model="range" ></span> <i class="fa fa-caret-down"></i>
+                        </div> -->
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-6">
-                        <button @click="setPins('precipitation')" >Precipitation</button>
-                        <button @click="setPins('maxTemp')" >Maximun Temperature</button>
-                        <button @click="setPins('minTemp')" >Minimun Temperature</button>
-                    </div>         
+            </div>
+            <div class="row" style="margin-top: 1em;">
+                <div class="col-6">
+                    <button @click="setPins('precipitation', startdate, enddate)">Precipitation</button>
+                    <button @click="setPins('maxTemp', startdate, enddate)">Maximun Temperature</button>
+                    <button @click="setPins('minTemp', startdate, enddate)">Minimun Temperature</button>
                 </div>
-              
+            </div>
+
         </div>
 
     </div>
 
 
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
-<script src="./app.js"></script>
+
+    <script>
+        $(function () {
+            $('input[name="datetimes"]').daterangepicker({
+                "maxYear": 2018,
+                "maxSpan": {
+                    "days": 30
+                },
+
+                maxDate: moment().format('YYYY-MM-DD'),
+                startDate: moment(),
+                endDate: moment(),
+                locale: {
+                    format: 'YYYY-MM-DD'
+                }
+            });
+        });
+
+        $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+            //do something, like clearing an input
+            $('#daterange').val('');
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('MM-DD-YYYY') + ' - ' + end.format('MM-DD-YYYY'));
+            }
+
+            $('#reportrange').daterangepicker({
+                "maxSpan": {
+                    "days": 30
+                },
+                maxDate: moment().format('MM-DD-YYYY'),
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), this.maxDate],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, cb);
+
+            cb(start, end);
+
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+    <script src="./app.js"></script>
 </body>
+
 </html>

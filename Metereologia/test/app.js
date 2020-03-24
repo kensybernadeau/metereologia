@@ -1,6 +1,10 @@
 new Vue({
     el: '#app',
     data: { 
+        startdate:null,
+        enddate:null,
+        range:null,
+        currentPinView:null,
         pins:null,
         map: null,
         tileLayer: null,
@@ -97,8 +101,13 @@ new Vue({
     mounted() { 
         this.initMap();
         this.initLayers();
-
         
+        
+     },
+     computed:{
+         date:function(){
+             return '2018' + '-0' + (today.getMonth() + 1 + '-' + today.getDate());
+         }
      },
     methods: { 
         initMap: function() { 
@@ -112,7 +121,10 @@ new Vue({
                 }
             );
             this.tileLayer.addTo(this.map);
-            this.setPins("precipitation");
+            today = new Date();
+            //var date = today.getFullYear()  + '-' + today.getDate()+ '-0' + (today.getMonth() + 1);
+            
+            this.setPins("precipitation",this.date, this.date);
 
         },
         initLayers: function() {
@@ -139,54 +151,54 @@ new Vue({
         getTemperaturePinColors: function(rgb, temperature) {
             //temp between 80-85 farenheit
             //  rgb.r = ((temperature-80)/80)
-            console.log("color temp " + temperature);
+            
             if (temperature == null) {
-                console.log("null");
+                
                 rgb.r = 255;
                 rgb.g = 255;
                 rgb.b = 255;
 
             }
             else if (temperature >= 0 && temperature < 40) {
-                console.log("0-40");
+                
                 rgb.r = 0;
                 rgb.g = 100;
                 rgb.b = 255;
             }
             else if (temperature >= 40 && temperature <= 70) {
-                console.log("40-70");
+               
                 rgb.r = ((temperature - 40) / (70 - 40)) * (100) + 0;
                 rgb.g = ((temperature - 40) / (70 - 40)) * (255 - 100) + 100;
                 rgb.b = ((temperature - 40) / (70 - 40)) * (255 - 255) + 255;
 
             }
             else if (temperature > 70 && temperature <= 80) {
-                console.log("70-80");
+               
                 rgb.r = ((temperature - 70) / (80 - 70)) * (255 - 100) + 100;
                 rgb.g = ((temperature - 70) / (80 - 70)) * (255 - 255) + 255;
                 rgb.b = ((temperature - 70) / (70 - 40)) * (255 - 0) + 0;
 
             }
             else if (temperature > 80 && temperature <= 90) {
-                console.log("80-90");
+                
                 rgb.r = ((temperature - 80) / (90 - 80)) * (255 - 255) + 255;
                 rgb.g = ((temperature - 80) / (90 - 80)) * (255 - 0) + 0;
                 rgb.b = ((temperature - 80) / (90 - 80)) * (8 - 0) + 0;
 
             }
             else if (temperature > 90 && temperature <= 120) {
-                console.log("90-120");
+                
                 rgb.r = ((temperature - 90) / (120 - 90)) * (255 - 100) + 100;
                 rgb.g = 0;
                 rgb.b = 0;
 
             }
 
-            console.log(rgb);
+            
 
         },
         getPrecipitationPinColors: function(rgb, precipitation) {
-            console.log("precipitation color");
+           
             if (precipitation >= 0 && precipitation <= 0.4) {
                 rgb.r = (((255 - 0) * (0.4 - precipitation)) / (0.4 - 0));
                 rgb.g = 255;
@@ -219,16 +231,20 @@ new Vue({
             }
 
         },
-         setPins: async function (type){
+         setPins: async function (type,start,end){
              if(this.pins!=null) this.map.removeLayer(this.pins);
+             this.startdate =start;
+             this.enddate =end;
+             this.currentPinView = type;
              let myPins = [];
-             const response = await fetch('http://climatologia.uprm.edu:8008');
+             const response = await fetch('http://climatologia.uprm.edu:8008/api?start='+this.startdate+ '&end='+ this.enddate);
              const stations = await response.json();
 
+             console.log('http://climatologia.uprm.edu:8008/api?start=' + this.startdate + '&end=' + this.enddate);
+             console.log(type);
 
              for (var i = 0; i < stations.length; i++) {
                  var station = stations[i];
-
 
                  var rgb = { r: 0, g: 0, b: 0 };
                  var label = station.MUNICIPALITY;
@@ -237,24 +253,24 @@ new Vue({
                      this.getTemperaturePinColors(rgb, station.TMIN);
                      if (station.TMIN == null) { label1 = " <br>min. Temperature: NULL</br>"; }
                      else { label1 = "<br>" + "min. Temperature:" + (station.TMIN).toString() + "</br>"; }
-                     console.log("mintemp");
+                     
                  }
                  else if (type == "maxTemp") {
                      this.getTemperaturePinColors(rgb, station.TMAX);
                      if (station.TMAX == null) { label1 = "<br>min. Temperature: NULL</br>"; }
                      else { label1 = "<br>" + "min. Temperature:" + (station.TMAX).toString() + "</br>"; }
-                     console.log("maxtemp");
+                     
                  }
                  else if (type == "precipitation") {
                      this.getPrecipitationPinColors(rgb, station.PRCP);
                      if (station.PRCP == null) { label1 = "<br>Precipitation: NULL</br>"; }
                      else { label1 = "<br>" + "Precipitation: " + (station.PRCP).toString() + "</br>"; }
-                     console.log("prcp");
+                    
                  }
 
 
 
-                 var myIcon = L.divIcon({ iconSize: new L.Point(20, 20), className: 'my-div-icon', iconAnchor: [0, 0], html: "<div style=' height:10px; width:10px;  marging-bottom:-15px; margin-left: -3px; border-radius:50%; border-color: black; background-color:rgb(" + rgb.r.toString() + "," + rgb.g.toString() + " ," + rgb.b.toString() + ");'></div>" });
+                 var myIcon = L.divIcon({ iconSize: new L.Point(20, 20), className: 'my-div-icon', iconAnchor: [0, 0], html: "<div style=' height:10px; width:10px;  marging-bottom:-15px; margin-left: -3px; border-radius:50%; border: 1px solid #ca6a1b; background-color:rgb(" + rgb.r.toString() + "," + rgb.g.toString() + " ," + rgb.b.toString() + ");'></div>" });
 
                  var myMarker = L.marker([station.LATITUDE, station.LONGITUDE], { icon: myIcon }).bindPopup(label + label1);
 
@@ -263,7 +279,22 @@ new Vue({
               this.pins = L.layerGroup(myPins);
              this.pins.addTo(this.map);
               return;
-         }
+         },
+        updatePins: function(date){
+            this.date=date;
+           var startdate = date.substring(0, 10);
+           var enddate = date.substring(13, 23);
+            this.setPins(this.currentPinView, date.substring(0, 10),date.substring(13, 23));
+            console.log(date.substring(0, 9) + date.substring(13, 22));
+
+
+        }
      },
+     watch:{
+         'range':function(val){
+             this.updatePins(val);
+
+         }
+     }
 
 });
