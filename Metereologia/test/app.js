@@ -97,7 +97,8 @@ new Vue({
     mounted() { 
         this.initMap();
         this.initLayers();
-        this.setPins("precipitation")
+
+        
      },
     methods: { 
         initMap: function() { 
@@ -111,6 +112,7 @@ new Vue({
                 }
             );
             this.tileLayer.addTo(this.map);
+            this.setPins("precipitation");
 
         },
         initLayers: function() {
@@ -218,6 +220,7 @@ new Vue({
 
         },
          setPins: async function (type){
+             if(this.pins!=null) this.map.removeLayer(this.pins);
              let myPins = [];
              const response = await fetch('http://climatologia.uprm.edu:8008');
              const stations = await response.json();
@@ -231,19 +234,19 @@ new Vue({
                  var label = station.MUNICIPALITY;
                  var label1;
                  if (type == "minTemp") {
-                     getTemperaturePinColors(rgb, station.TMIN);
+                     this.getTemperaturePinColors(rgb, station.TMIN);
                      if (station.TMIN == null) { label1 = " <br>min. Temperature: NULL</br>"; }
                      else { label1 = "<br>" + "min. Temperature:" + (station.TMIN).toString() + "</br>"; }
                      console.log("mintemp");
                  }
                  else if (type == "maxTemp") {
-                     getTemperaturePinColors(rgb, station.TMAX);
+                     this.getTemperaturePinColors(rgb, station.TMAX);
                      if (station.TMAX == null) { label1 = "<br>min. Temperature: NULL</br>"; }
                      else { label1 = "<br>" + "min. Temperature:" + (station.TMAX).toString() + "</br>"; }
                      console.log("maxtemp");
                  }
                  else if (type == "precipitation") {
-                     getPrecipitationPinColors(rgb, station.PRCP);
+                     this.getPrecipitationPinColors(rgb, station.PRCP);
                      if (station.PRCP == null) { label1 = "<br>Precipitation: NULL</br>"; }
                      else { label1 = "<br>" + "Precipitation: " + (station.PRCP).toString() + "</br>"; }
                      console.log("prcp");
@@ -251,13 +254,14 @@ new Vue({
 
 
 
-                 var myIcon = L.divIcon({ iconSize: new L.Point(20, 20), className: 'my-div-icon', iconAnchor: [0, 0], html: "<div style=' height:10px; width:10px;  marging-bottom:-15px; margin-left: -3px; border-radius:50%; background-color:rgb(" + rgb.r.toString() + "," + rgb.g.toString() + " ," + rgb.b.toString() + ");'></div>" });
+                 var myIcon = L.divIcon({ iconSize: new L.Point(20, 20), className: 'my-div-icon', iconAnchor: [0, 0], html: "<div style=' height:10px; width:10px;  marging-bottom:-15px; margin-left: -3px; border-radius:50%; border-color: black; background-color:rgb(" + rgb.r.toString() + "," + rgb.g.toString() + " ," + rgb.b.toString() + ");'></div>" });
 
                  var myMarker = L.marker([station.LATITUDE, station.LONGITUDE], { icon: myIcon }).bindPopup(label + label1);
 
                  myPins.push(myMarker);
              }
               this.pins = L.layerGroup(myPins);
+             this.pins.addTo(this.map);
               return;
          }
      },
