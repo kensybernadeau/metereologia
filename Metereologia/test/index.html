@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Interactive Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css">
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light " style="background-color: #212121 !important; margin-bottom: 0;">
+        <a class="navbar-brand" href="#">
+            <img src="" width="40" height="45" class="d-inline-block align-top" alt="">
+        </a>
+    </nav>
+    <div id="app" class="container-fluid" style="margin: 0;">
+        <div class="container-fluid" style="padding:0;">
+            
+                <div class="row">
+                    <div class="col-md-10">
+                        <div id="map" class="map"></div>
+                    </div>
+                    <div class="col-md-2" style="background-color:rgba(201, 201, 201, 0.212);">
+                    <div class="form-check"  v-for="layer in layers" :key="layer.id">
+                        <hr>
+                        <label class="form-check-label" >
+                            <input class="form-check-input" type="checkbox" v-model="layer.active"
+                                @change="layerChanged(layer.id, layer.active)" />
+                            {{ layer.name }}
+                        </label>
+                        <hr>
+                    </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <button @click="setPins('precipitation')" >Precipitation</button>
+                        <button @click="setPins('maxTemp')" >Maximun Temperature</button>
+                        <button @click="setPins('minTemp')" >Minimun Temperature</button>
+                    </div>         
+                </div>
+              
+        </div>
+
+    </div>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
