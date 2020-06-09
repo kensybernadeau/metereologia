@@ -1,1 +1,1 @@
-# metereologia
+# climatología
